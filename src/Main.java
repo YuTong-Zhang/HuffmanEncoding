@@ -5,14 +5,17 @@ import java.util.HashMap;
  */
 public class Main {
     public static void main(String[] args){
-        HashMap<Character,Integer> characterFrequencyMap = new HashMap<>();
-        characterFrequencyMap.put('a',5);
-        characterFrequencyMap.put('b',10);
-        characterFrequencyMap.put('c',8);
+        ParseFile parser = new ParseFile();
+        HashMap<Character,Integer> characterFrequencyMap = parser.decode("test.txt");
         MinHeap minHeap = new MinHeap(characterFrequencyMap);
-        HuffmanTreeEncode huffmanTree = new HuffmanTreeEncode(minHeap);
-        huffmanTree.printTree(huffmanTree.huffmanTree);
+        HuffmanTree huffmanTree = new HuffmanTree(minHeap);
         huffmanTree.getCodeMap();
         huffmanTree.printCode(huffmanTree.huffmanTree);
+        characterFrequencyObj HT = huffmanTree.getHuffmanTree();
+        HuffmanTreeEncode encoder = new HuffmanTreeEncode(HT);
+        encoder.encode("test.txt","finished.txt");
+        huffmanTree.printTree(huffmanTree.huffmanTree);
+        HuffmanTreeDecode decoder = new HuffmanTreeDecode(HT);
+        decoder.decode("decoded.txt","finished.txt");
     }
 }

@@ -1,77 +1,77 @@
-import java.util.ArrayList;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.Writer;
 import java.util.HashMap;
+import java.util.Scanner;
 
 /**
- * Created by juliazhang on 10/7/17.
+ * Created by juliazhang on 10/20/17.
  */
 public class HuffmanTreeEncode {
     characterFrequencyObj huffmanTree;
-    HashMap<Character,String> characterCodeMap= new HashMap<>();
 
-    public HuffmanTreeEncode(MinHeap minHeap){
-        while(minHeap.size() > 1){
-            characterFrequencyObj min1 = minHeap.pop();
-            characterFrequencyObj min2 = minHeap.pop();
-            int newNodeFrequency = min1.frequency + min2.frequency;
-            characterFrequencyObj obj = new characterFrequencyObj('\u0000',newNodeFrequency,min1,min2);
-            minHeap.add(obj);
-        }
-        huffmanTree = minHeap.pop();
+    public HuffmanTreeEncode(characterFrequencyObj huffmanTree){
+        this.huffmanTree = huffmanTree;
     }
 
-    public void getCodeMap(){
-        StringBuilder code = new StringBuilder();
-//        labelTree(huffmanTree,code);
-        labelTree(huffmanTree);
-//        return characterCodeMap;
-    }
-
-    public void labelTree(characterFrequencyObj huffmanTree){
-        if(huffmanTree.left != null){
-            huffmanTree.left.code = 0;
-            labelTree(huffmanTree.left);
-        }
-        if(huffmanTree.right != null){
-            huffmanTree.right.code = 1;
-            labelTree(huffmanTree.right);
-        }
-    }
-
-    public void printTree(characterFrequencyObj huffmanTree){
-        if(huffmanTree.left != null || huffmanTree.right != null){
-            System.out.println("Character: " + huffmanTree.character + " Frequency: " + huffmanTree.frequency);
-            if(huffmanTree.left != null && huffmanTree.right != null){
-                printTree(huffmanTree.left);
-                printTree(huffmanTree.right);
+    public void encode(String filename,String encodedfilename){
+        try {
+            StringBuilder totalSB = new StringBuilder();
+            Scanner fileReader = new Scanner(new FileReader(filename));
+            String line;
+            while(fileReader.hasNextLine()){
+                line = fileReader.nextLine();
+                System.out.println("line: " + line);
+                char[] myChar = line.toCharArray();
+                for(char item:myChar){
+                    StringBuilder codeSB = new StringBuilder();
+                    System.out.println("Character: " + item);
+                    String code = findCode(huffmanTree,item,codeSB);
+                    totalSB.append(code);
+                }
             }
-            else if(huffmanTree.left != null){
-                printTree(huffmanTree.left);
-            }
-            else{
-                printTree(huffmanTree.right);
-            }
-        }
-        else{
-            System.out.println("Character: " + huffmanTree.character + " Frequency: " + huffmanTree.frequency);
+            Writer wr = new FileWriter(encodedfilename);
+            System.out.println(totalSB.toString());
+            wr.write(totalSB.toString());
+            wr.flush();
+            wr.close();
+        }catch(Exception e){
+            e.printStackTrace();
         }
     }
 
-    public void printCode(characterFrequencyObj huffmanTree){
-        if(huffmanTree.left != null || huffmanTree.right != null){
-            System.out.println("Character: " + huffmanTree.character + " Code: " + huffmanTree.code);
-            if(huffmanTree.left != null && huffmanTree.right != null){
-                printCode(huffmanTree.left);
-                printCode(huffmanTree.right);
-            }
-            else if(huffmanTree.left != null){
-                printCode(huffmanTree.left);
-            }
-            else{
-                printCode(huffmanTree.right);
+    public String findCode(characterFrequencyObj huffmanTree, char character, StringBuilder code){
+        System.out.println("Looking at: " + huffmanTree.character + " " + huffmanTree.frequency);
+        System.out.println("State of code: " + code.toString());
+        if (huffmanTree.character == character) {
+            System.out.println("Matches! " + huffmanTree.character + " " + huffmanTree.frequency);
+            System.out.println("State of code: " + code.toString());
+            return code.toString();
+        }
+        if(huffmanTree.left != null && huffmanTree.right != null) {
+            System.out.println("State of code1: " + code.toString());
+            code.append(huffmanTree.left.code);
+            System.out.println("State of code2: " + code.toString());
+            String left = findCode(huffmanTree.left, character, code);
+            System.out.println("State of code3: " + code.toString());
+            code.deleteCharAt(code.length() - 1);
+            System.out.println("State of code4: " + code.toString());
+            code.append(huffmanTree.right.code);
+            System.out.println("State of code5: " + code.toString());
+            String right = findCode(huffmanTree.right, character, code);
+            System.out.println("State of code6: " + code.toString());
+            code.deleteCharAt(code.length() - 1);
+            System.out.println("State of code7: " + code.toString());
+            if(left != ""){
+                System.out.println("LEFT: " + huffmanTree.character + " " + huffmanTree.frequency + " " + code.toString());
+                return left;
+            }else if(right != ""){
+                System.out.println("RIGHT: " + huffmanTree.character + " " + huffmanTree.frequency + " " + code.toString());
+                return right;
             }
         }
-        else{
-            System.out.println("Character: " + huffmanTree.character + " Code: " + huffmanTree.code);
-        }
+        return "";
     }
 }
+
